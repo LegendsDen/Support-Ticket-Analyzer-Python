@@ -25,10 +25,13 @@ def mask_messages():
 @app.route('/embed', methods=['POST'])
 def embed_message():
     try:
+        print("Received request for embedding")
         data = request.get_json()
         message = data.get('message', '')
         embedding = get_embedding(message)
-        return jsonify({"message": message, "embedding": embedding})
+        print("Generated embedding")
+        # print(embedding.shape)
+        return jsonify({"embedding": embedding})
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
