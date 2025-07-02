@@ -38,7 +38,7 @@ def embed_message():
 def embed_batch():
     try:
         data = request.get_json()
-        batches = data.get("batches", [])  # List of dicts with ticket_id and message
+        batches = data.get("batches", [])  
 
         results = []
         for item in batches:
@@ -59,7 +59,7 @@ def embed_batch():
 def mask_batch():
     try:
         data = request.get_json()
-        batches = data.get('batches', [])  # List of {"ticket_id": ..., "messages": [...]}
+        batches = data.get('batches', [])  
 
         results = []
         for item in batches:
