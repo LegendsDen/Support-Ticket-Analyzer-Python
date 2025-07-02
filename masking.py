@@ -11,6 +11,7 @@ COMPILED_PATTERNS = {
     'EMAIL': re.compile(r'[\w\.-]+@[\w\.-]+'),
     'PHONE': re.compile(r'\+?\d[\d\s\-]{7,}'),
     'URL': re.compile(r'https?://[^\s]+'),
+    'DOMAIN': re.compile(r'\b(?:www\.)?[\w\.-]*\.com\b', re.IGNORECASE),  
     'ORG': re.compile(r'\bsprinklr\b', re.IGNORECASE),
     'TICKET': re.compile(r'#\d+'),
     'PARTNER_ID': re.compile(r'Partner ID:[^.]*', re.IGNORECASE)
