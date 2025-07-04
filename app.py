@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, Response
 import json
-from masking import full_masking_pipeline
+from masking import full_masking_pipeline, full_masking_pipeline_batch
 from embedding import get_embedding
 
 app = Flask(__name__)
@@ -34,12 +34,12 @@ def embed_message():
         return jsonify({"embedding": embedding})
     except Exception as e:
         return jsonify({"error": str(e)}), 400
-    
+
 @app.route('/embed_batch', methods=['POST'])
 def embed_batch():
     try:
         data = request.get_json()
-        batches = data.get("batches", [])  
+        batches = data.get("batches", [])
 
         def generate_embeddings():
             for item in batches:
@@ -52,7 +52,7 @@ def embed_batch():
                 }
                 yield json.dumps(result) + '\n'
 
-        return Response(generate_embeddings(), 
+        return Response(generate_embeddings(),
                        mimetype='application/x-ndjson',
                        headers={'Content-Type': 'application/x-ndjson'})
     except Exception as e:
@@ -62,32 +62,30 @@ def embed_batch():
 def mask_batch():
     try:
         data = request.get_json()
-        batches = data.get('batches', [])  
+        batches = data.get('batches', [])
 
         def generate_masked_results():
             for item in batches:
                 ticketId = item.get("ticketId")
-                messages = item.get("messages", [])
-                masked = [full_masking_pipeline(m) for m in messages if m.strip()]
+                messages = [m for m in item.get("messages", []) if m.strip()]
+                masked = full_masking_pipeline_batch(messages)
+
                 result = {
-                    "ticketId": ticketId, 
+                    "ticketId": ticketId,
                     "maskedMessages": masked
                 }
-                
-                # Convert to JSON and check size
+
                 json_str = json.dumps(result)
                 json_size = len(json_str.encode('utf-8'))
-                
-                # Log large responses
-                if json_size > 200000:  # > 200KB
+
+                if json_size > 200000:
                     print(f"WARNING: Large response for ticket {ticketId}: {json_size} bytes")
                     print(f"Number of messages: {len(masked)}")
                     print(f"Total text length: {sum(len(msg) for msg in masked)}")
-                
-                # If response is too large, split it
-                if json_size > 250000:  # > 250KB, split into chunks
+
+                if json_size > 250000:
                     print(f"Splitting large response for ticket {ticketId}")
-                    chunk_size = 50  # messages per chunk
+                    chunk_size = 50
                     for i in range(0, len(masked), chunk_size):
                         chunk_messages = masked[i:i + chunk_size]
                         chunk_result = {
@@ -98,7 +96,7 @@ def mask_batch():
                 else:
                     yield json_str + '\n'
 
-        return Response(generate_masked_results(), 
+        return Response(generate_masked_results(),
                        mimetype='application/x-ndjson',
                        headers={'Content-Type': 'application/x-ndjson'})
     except Exception as e:
