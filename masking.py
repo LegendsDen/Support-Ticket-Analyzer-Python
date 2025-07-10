@@ -13,8 +13,7 @@ COMPILED_PATTERNS = {
     'DOMAIN': re.compile(r'\b(?:www\.)?[\w\.-]*\.com\b', re.IGNORECASE),  
     'ORG': re.compile(r'\bsprinklr\b', re.IGNORECASE),
     'TICKET': re.compile(r'#\d+'),
-    'PARTNER_ID': re.compile(r'Partner ID:[^.]*', re.IGNORECASE)
-}
+    'PARTNER_ID': re.compile(r'(?:Partner\s*ID|partnerId)\s*:[-\s]*\d+', re.IGNORECASE)}
 
 # Entities to mask with NER
 ENTITIES_TO_MASK = {'PERSON', 'ORG', 'GPE', 'EMAIL', 'URL', 'LOC', 'PHONE', 'DATE', 'TIME', 'ID'}
@@ -83,5 +82,5 @@ def full_masking_pipeline(html_message):
 
 # Test
 if __name__ == "__main__":
-    example = "<html><body><p>Sushant Kumar APPLE INC contact us at dELHI arun</p></body></html>"
+    example = "<html><body><p>Sushant Kumar APPLE INC contact us at dELHI arun  </p></body></html>"
     print(full_masking_pipeline(example))
